@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    environment:
+      POSTGRES_USER: motorq
+      POSTGRES_PASSWORD: motorq_password
+      POSTGRES_DB: fleetsignal
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init/01_init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - pgdata:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 400M
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    environment:
+      CLICKHOUSE_USER: motorq
+      CLICKHOUSE_PASSWORD: motorq_password
+      CLICKHOUSE_DB: fleetsignal
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./init/01_init_ch.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - clickhouse_data:/var/lib/clickhouse
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    deploy:
+      resources:
+        limits:
+          memory: 400M
+
+  # --- Application Services ---
+
+  fleet-api:
+    build:
+      context: ../backend/go-fleet-api
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - KAFKA_BROKERS=kafka:29092
+      - POSTGRES_URL=postgres://motorq:motorq_password@postgres:5432/fleetsignal
+      - CLICKHOUSE_URL=clickhouse://motorq:motorq_password@clickhouse:9000/fleetsignal
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    depends_on:
+      - postgres
+      - clickhouse
+      - kafka
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  hf-api:
+    build:
+      context: ../backend/python-hf-api
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_HOST=postgres
+      - CLICKHOUSE_HOST=clickhouse
+      - REDIS_HOST=redis
+    depends_on:
+      - postgres
+      - clickhouse
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+
+  fleet-agent:
+    build:
+      context: ../agents/fleet-ops-agent
+    ports:
+      - "8001:8001"
+    environment:
+      - AGENT_PORT=8001
+      - POSTGRES_HOST=postgres
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+
+  frontend:
+    build:
+      context: ../frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - fleet-api
+      - hf-api
+      - fleet-agent
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+
+volumes:
+  pgdata:
+  clickhouse_data:
+  kafka_data:
