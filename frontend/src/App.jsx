@@ -3,9 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { Incidents } from './pages/Incidents';
-
-// Placeholder Pages
-const Analytics = () => <div className="animate-fade-in"><h2>Alpha Analytics</h2></div>;
+import { Analytics } from './pages/Analytics';
 
 function App() {
   return (
