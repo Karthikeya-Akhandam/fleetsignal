@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/config"
+	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/repository"
+	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/routers"
 )
 
 func main() {
@@ -15,7 +17,19 @@ func main() {
 
 	cfg := config.LoadConfig()
 
+	if err := repository.InitPostgres(cfg); err != nil {
+		log.Fatalf("Failed to connect to Postgres: %v", err)
+	}
+	defer repository.ClosePostgres()
+
+	if err := repository.InitClickHouse(cfg); err != nil {
+		log.Fatalf("Failed to connect to ClickHouse: %v", err)
+	}
+	defer repository.CloseClickHouse()
+
 	router := gin.Default()
+
+	routers.RegisterRoutes(router)
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
