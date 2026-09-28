@@ -3,11 +3,13 @@ package ingestion
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/repository"
+	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/service"
 )
 
 type IncidentMessage struct {
@@ -46,10 +48,13 @@ func StartIncidentConsumer(ctx context.Context, consumer *kafka.Consumer) {
 func insertIncident(ctx context.Context, inc IncidentMessage) error {
 	ts, _ := time.Parse(time.RFC3339, inc.Timestamp)
 	
+	embeddingText := fmt.Sprintf("Incident %s: %s", inc.FaultCode, inc.Description)
+	embedding, _ := service.GenerateEmbedding(ctx, embeddingText)
+	
 	query := `
-		INSERT INTO incidents (vin, timestamp, fault_code, severity)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO incidents (vin, timestamp, fault_code, severity, embedding)
+		VALUES ($1, $2, $3, $4, $5)
 	`
-	_, err := repository.PGPool.Exec(ctx, query, inc.VIN, ts, inc.FaultCode, inc.Severity)
+	_, err := repository.PGPool.Exec(ctx, query, inc.VIN, ts, inc.FaultCode, inc.Severity, embedding)
 	return err
 }
