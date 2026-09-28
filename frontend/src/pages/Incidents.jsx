@@ -4,6 +4,7 @@ import { Button } from '../components/Button';
 import { useStore } from '../store/useStore';
 import { fleetApi } from '../api/client';
 import { AlertCircle, Wrench, ChevronRight } from 'lucide-react';
+import { IncidentModal } from '../components/IncidentModal';
 
 export function Incidents() {
   const { incidents, setIncidents, selectIncident } = useStore();
@@ -77,6 +78,8 @@ export function Incidents() {
           </div>
         )}
       </div>
+      
+      <IncidentModal />
     </div>
   );
 }
