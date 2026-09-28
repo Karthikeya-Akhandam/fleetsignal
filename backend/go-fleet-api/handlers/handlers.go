@@ -22,7 +22,7 @@ func (h *FleetHandler) GetIncidents(c *gin.Context) {
 	}
 	
 	if incidents == nil {
-		incidents = []interface{}{} // Return empty array instead of null
+		incidents = []models.Incident{} // Return empty array instead of null
 	}
 	c.JSON(http.StatusOK, incidents)
 }

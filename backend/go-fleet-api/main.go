@@ -56,8 +56,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	go ingestion.StartTelemetryConsumer(ctx, consumers.TelemetryConsumer)
-	go ingestion.StartIncidentConsumer(ctx, consumers.IncidentConsumer)
+	go ingestion.StartTelemetryConsumer(ctx, consumers.TelemetryReader)
+	go ingestion.StartIncidentConsumer(ctx, consumers.IncidentReader)
 
 	// Graceful shutdown
 	srv := &http.Server{

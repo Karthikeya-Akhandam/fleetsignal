@@ -6,13 +6,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/segmentio/kafka-go"
 	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/models"
 	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/repository"
 )
 
-func StartTelemetryConsumer(ctx context.Context, consumer *kafka.Consumer) {
+func StartTelemetryConsumer(ctx context.Context, reader *kafka.Reader) {
 	batchSize := 1000
 	var batch []models.TelemetryPayload
 
@@ -22,23 +21,28 @@ func StartTelemetryConsumer(ctx context.Context, consumer *kafka.Consumer) {
 			flushTelemetryBatch(batch)
 			return
 		default:
-			msg, err := consumer.ReadMessage(100 * time.Millisecond)
-			if err == nil {
-				var payload models.TelemetryPayload
-				if err := json.Unmarshal(msg.Value, &payload); err == nil {
-					batch = append(batch, payload)
+			// FetchMessage does not auto-commit offsets
+			msg, err := reader.FetchMessage(ctx)
+			if err != nil {
+				if err == context.Canceled {
+					return
 				}
-
-				if len(batch) >= batchSize {
-					if err := flushTelemetryBatch(batch); err == nil {
-						consumer.CommitMessage(msg)
-						batch = batch[:0] // clear batch
-					} else {
-						log.Printf("Failed to flush telemetry batch: %v", err)
-					}
-				}
-			} else if !err.(kafka.Error).IsTimeout() {
 				log.Printf("Telemetry consumer error: %v\n", err)
+				continue
+			}
+
+			var payload models.TelemetryPayload
+			if err := json.Unmarshal(msg.Value, &payload); err == nil {
+				batch = append(batch, payload)
+			}
+
+			if len(batch) >= batchSize {
+				if err := flushTelemetryBatch(batch); err == nil {
+					reader.CommitMessages(ctx, msg) // Commit the last message in the batch
+					batch = batch[:0] // clear batch
+				} else {
+					log.Printf("Failed to flush telemetry batch: %v", err)
+				}
 			}
 		}
 	}
