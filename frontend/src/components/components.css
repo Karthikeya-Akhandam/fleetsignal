@@ -1,0 +1,91 @@
+/* Glass Card */
+.glass-card {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  box-shadow: var(--shadow-glass);
+  padding: 24px;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+  border-color: var(--border-focus);
+}
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background: var(--gradient-brand);
+  color: #fff;
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+}
+
+.btn-secondary {
+  background: var(--brand-light);
+  color: var(--brand-primary);
+  border: 1px solid var(--border-focus);
+}
+
+.btn-secondary:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(11, 14, 20, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn var(--transition-fast) forwards;
+}
+
+.modal-content {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 32px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-glass);
+  transform: scale(0.95);
+  animation: modalPop var(--transition-bounce) forwards;
+}
+
+@keyframes modalPop {
+  to { transform: scale(1); opacity: 1; }
+}
