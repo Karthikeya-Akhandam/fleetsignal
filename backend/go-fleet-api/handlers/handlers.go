@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/models"
 	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/service"
 )
 
