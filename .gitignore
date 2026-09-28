@@ -1,2 +1,33 @@
-# Local Files
+# General
+.DS_Store
+.env
+.idea/
+.vscode/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Go
+backend/go-fleet-api/go-fleet-api
+backend/go-fleet-api/go-fleet-api.exe
+*.exe
+
+# React/Node
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Docker volumes
+pgdata/
+clickhouse_data/
+kafka_data/
+
+# Hackathon local files
 local/
+.agents/
