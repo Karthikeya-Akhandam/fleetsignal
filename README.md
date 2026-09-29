@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🚀 FleetSignal
 
@@ -472,4 +472,3 @@ make sim
 **Built for the Motorq Hackathon** · Made with ❤️ by Karthikeya Akhandam
 
 </div>
-]]>
