@@ -31,3 +31,4 @@ kafka_data/
 # Hackathon local files
 local/
 .agents/
+temp/
