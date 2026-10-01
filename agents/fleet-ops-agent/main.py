@@ -4,7 +4,17 @@ import uvicorn
 import os
 from graph import app as agent_app
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="Fleet Ops Agent API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class IncidentRequest(BaseModel):
     incident_id: str

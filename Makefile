@@ -1,4 +1,4 @@
-.PHONY: help up down logs sim db build clean
+.PHONY: help up down logs sim db build clean run
 
 help: ## Show this help message
 	@echo "FleetSignal Makefile Commands:"
@@ -9,6 +9,13 @@ help: ## Show this help message
 	@echo "  make db      - Start ONLY the databases (Postgres, ClickHouse, Redis, Kafka)"
 	@echo "  make build   - Rebuild all Docker images"
 	@echo "  make clean   - Remove all containers, networks, and volumes (WARNING: Data loss)"
+	@echo "  make run     - Clean, build, start all services, and run the simulator"
+
+run: clean up
+	@echo "Waiting for Kafka and APIs to initialize..."
+	@sleep 15
+	@echo "Starting simulator..."
+	cd simulator && python main.py
 
 up:
 	cd infrastructure && docker-compose up -d

@@ -4,7 +4,7 @@ import numpy as np
 from typing import List, Dict
 
 class PrivacyEngine:
-    def __init__(self, k_anonymity_threshold: int = 5, epsilon: float = 1.0):
+    def __init__(self, k_anonymity_threshold: int = 1, epsilon: float = 1.0):
         # We use a salt loaded from env or generated randomly for this session
         self.salt = os.getenv("PRIVACY_SALT", "motorq_hackathon_super_secret_salt").encode()
         self.k_threshold = k_anonymity_threshold

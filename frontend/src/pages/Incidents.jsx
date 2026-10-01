@@ -10,25 +10,19 @@ export function Incidents() {
   const { incidents, setIncidents, selectIncident } = useStore();
 
   useEffect(() => {
-    // In a real app, this would be an actual API call. 
-    // We will mock data here so the UI looks great even without the backend running
-    fleetApi.get('/incidents')
-      .then(data => {
-        if (data && data.length > 0) {
-          setIncidents(data);
-        } else {
-          loadMockData();
-        }
-      })
-      .catch(() => loadMockData());
-      
-    function loadMockData() {
-      setIncidents([
-        { incident_id: 'INC-001', vin: 'WBA0000000001', fault_code: 'P0171', severity: 'HIGH', description: 'System Too Lean (Bank 1)', resolved: false, timestamp: new Date().toISOString() },
-        { incident_id: 'INC-002', vin: 'WBA0000000002', fault_code: 'U0415', severity: 'CRITICAL', description: 'Invalid Data Received From ABS Control Module', resolved: false, timestamp: new Date().toISOString() },
-        { incident_id: 'INC-003', vin: 'WBA0000000003', fault_code: 'B1234', severity: 'LOW', description: 'Mirror Heater Circuit Open', resolved: false, timestamp: new Date().toISOString() }
-      ]);
-    }
+    const fetchIncidents = () => {
+      fleetApi.get('/incidents')
+        .then(data => {
+          if (data) {
+            setIncidents(data);
+          }
+        })
+        .catch(err => console.error("Failed to fetch incidents:", err));
+    };
+
+    fetchIncidents();
+    const interval = setInterval(fetchIncidents, 5000);
+    return () => clearInterval(interval);
   }, [setIncidents]);
 
   return (

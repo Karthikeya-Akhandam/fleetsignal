@@ -10,7 +10,7 @@ CREATE TABLE vehicles (
 
 CREATE TABLE incidents (
     incident_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    vin VARCHAR(17) REFERENCES vehicles(vin),
+    vin VARCHAR(17),
     timestamp TIMESTAMP NOT NULL,
     fault_code VARCHAR(20) NOT NULL,
     severity VARCHAR(10) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE incidents (
 CREATE TABLE work_orders (
     order_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     incident_id UUID REFERENCES incidents(incident_id),
-    vin VARCHAR(17) REFERENCES vehicles(vin),
+    vin VARCHAR(17),
     status VARCHAR(20) DEFAULT 'PENDING',
     description TEXT NOT NULL,
     cost_estimate DECIMAL(10, 2),
@@ -32,7 +32,7 @@ CREATE TABLE work_orders (
 
 CREATE TABLE ota_updates (
     update_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    vin VARCHAR(17) REFERENCES vehicles(vin),
+    vin VARCHAR(17),
     version VARCHAR(20) NOT NULL,
     status VARCHAR(20) DEFAULT 'PENDING',
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP

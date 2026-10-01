@@ -14,5 +14,7 @@ func RegisterRoutes(r *gin.Engine) {
 	{
 		api.GET("/incidents", h.GetIncidents)
 		api.POST("/incidents/:id/resolve", h.ResolveIncident)
+		api.GET("/stats", h.GetStats)
+		api.GET("/telemetry/recent", h.GetTelemetryHistory)
 	}
 }

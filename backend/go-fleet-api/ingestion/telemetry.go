@@ -53,7 +53,7 @@ func flushTelemetryBatch(batch []models.TelemetryPayload) error {
 		return nil
 	}
 
-	batchConn, err := repository.CHConn.PrepareBatch(context.Background(), "INSERT INTO vehicle_telemetry")
+	batchConn, err := repository.CHConn.PrepareBatch(context.Background(), "INSERT INTO fleetsignal.vehicle_telemetry")
 	if err != nil {
 		return err
 	}

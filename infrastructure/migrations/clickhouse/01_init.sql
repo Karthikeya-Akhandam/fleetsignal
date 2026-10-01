@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS vehicle_telemetry (
+CREATE TABLE IF NOT EXISTS fleetsignal.vehicle_telemetry (
     timestamp DateTime64(3),
     vin String,
     latitude Float64,

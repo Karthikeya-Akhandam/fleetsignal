@@ -4,10 +4,20 @@ from config import config
 from db import db_clients
 from routers import router as alpha_router
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="FleetSignal Hedge Fund API",
     description="Privacy-preserved Alternative Data API for Hedge Funds",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.on_event("startup")

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
 	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/config"
 	"github.com/Karthikeya-Akhandam/fleetsignal/backend/go-fleet-api/repository"
@@ -25,17 +26,33 @@ func main() {
 
 	cfg := config.LoadConfig()
 
-	if err := repository.InitPostgres(cfg); err != nil {
-		log.Fatalf("Failed to connect to Postgres: %v", err)
+	var err error
+	for i := 0; i < 10; i++ {
+		if err = repository.InitPostgres(cfg); err == nil {
+			break
+		}
+		log.Printf("Failed to connect to Postgres, retrying in 2s: %v", err)
+		time.Sleep(2 * time.Second)
+	}
+	if err != nil {
+		log.Fatalf("Failed to connect to Postgres after retries: %v", err)
 	}
 	defer repository.ClosePostgres()
 
-	if err := repository.InitClickHouse(cfg); err != nil {
-		log.Fatalf("Failed to connect to ClickHouse: %v", err)
+	for i := 0; i < 10; i++ {
+		if err = repository.InitClickHouse(cfg); err == nil {
+			break
+		}
+		log.Printf("Failed to connect to ClickHouse, retrying in 2s: %v", err)
+		time.Sleep(2 * time.Second)
+	}
+	if err != nil {
+		log.Fatalf("Failed to connect to ClickHouse after retries: %v", err)
 	}
 	defer repository.CloseClickHouse()
 
 	router := gin.Default()
+	router.Use(cors.Default())
 
 	routers.RegisterRoutes(router)
 

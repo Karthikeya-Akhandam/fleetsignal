@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./init/01_init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./migrations/postgres:/docker-entrypoint-initdb.d
       - pgdata:/var/lib/postgresql/data
     deploy:
       resources:
@@ -27,12 +27,12 @@ services:
       - "8123:8123"
       - "9000:9000"
     volumes:
-      - ./init/01_init_ch.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./migrations/clickhouse:/docker-entrypoint-initdb.d
       - clickhouse_data:/var/lib/clickhouse
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 1G
 
   redis:
     image: redis:7-alpine
@@ -63,7 +63,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://127.0.0.1:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -81,10 +81,11 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
-      - KAFKA_BROKERS=kafka:29092
-      - POSTGRES_URL=postgres://motorq:motorq_password@postgres:5432/fleetsignal
-      - CLICKHOUSE_URL=clickhouse://motorq:motorq_password@clickhouse:9000/fleetsignal
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - POSTGRES_HOST=postgres
+      - CLICKHOUSE_HOST=clickhouse
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    restart: on-failure
     depends_on:
       - postgres
       - clickhouse

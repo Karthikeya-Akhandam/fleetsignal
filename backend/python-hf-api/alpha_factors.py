@@ -16,7 +16,7 @@ class AlphaFactorEngine:
         SELECT 
             geohashEncode(longitude, latitude, 4) as geohash,
             toStartOfHour(timestamp) as time_bucket,
-            count(DISTINCT vin) as k_count,
+            uniq(vin) as k_count,
             sum(cargo_weight_kg) as total_tonnage
         FROM vehicle_telemetry
         WHERE timestamp >= '{start_time}' AND timestamp <= '{end_time}'
@@ -50,7 +50,7 @@ class AlphaFactorEngine:
         SELECT 
             geohashEncode(longitude, latitude, 5) as geohash,
             toStartOfHour(timestamp) as time_bucket,
-            count(DISTINCT vin) as k_count,
+            uniq(vin) as k_count,
             avg(battery_soc) as avg_soc,
             sum(engine_load) as total_load
         FROM vehicle_telemetry

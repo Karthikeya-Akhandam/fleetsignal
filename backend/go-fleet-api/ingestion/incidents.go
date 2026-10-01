@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/segmentio/kafka-go"
@@ -54,10 +55,16 @@ func insertIncident(ctx context.Context, inc IncidentMessage) error {
 	embeddingText := fmt.Sprintf("Incident %s: %s", inc.FaultCode, inc.Description)
 	embedding, _ := service.GenerateEmbedding(ctx, embeddingText)
 	
+	strVals := make([]string, len(embedding))
+	for i, v := range embedding {
+		strVals[i] = fmt.Sprintf("%f", v)
+	}
+	vectorStr := "[" + strings.Join(strVals, ",") + "]"
+	
 	query := `
 		INSERT INTO incidents (vin, timestamp, fault_code, severity, embedding)
-		VALUES ($1, $2, $3, $4, $5)
+		VALUES ($1, $2, $3, $4, $5::vector)
 	`
-	_, err := repository.PGPool.Exec(ctx, query, inc.VIN, ts, inc.FaultCode, inc.Severity, embedding)
+	_, err := repository.PGPool.Exec(ctx, query, inc.VIN, ts, inc.FaultCode, inc.Severity, vectorStr)
 	return err
 }

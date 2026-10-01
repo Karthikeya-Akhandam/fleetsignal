@@ -46,3 +46,21 @@ func (h *FleetHandler) ResolveIncident(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": "Incident resolved"})
 }
+
+func (h *FleetHandler) GetStats(c *gin.Context) {
+	stats, err := h.Service.GetFleetStats(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, stats)
+}
+
+func (h *FleetHandler) GetTelemetryHistory(c *gin.Context) {
+	history, err := h.Service.GetTelemetryHistory(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, history)
+}

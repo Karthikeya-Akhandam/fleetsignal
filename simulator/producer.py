@@ -10,7 +10,9 @@ class KafkaPublisher:
             'bootstrap.servers': config.KAFKA_BOOTSTRAP_SERVERS,
             'client.id': 'simulator-producer',
             'linger.ms': 5, # Batching delay for higher throughput
-            'batch.size': 16384
+            'batch.size': 16384,
+            'message.timeout.ms': 30000,
+            'queue.buffering.max.messages': 100000
         }
         self.producer = Producer(conf)
 
