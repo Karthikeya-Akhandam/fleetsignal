@@ -1,7 +1,6 @@
 site_name: FleetSignal Intelligence
 theme:
   name: material
-  custom_dir: docs/overrides
   features:
     - navigation.tabs
     - navigation.tabs.sticky
